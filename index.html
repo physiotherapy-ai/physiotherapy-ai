@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physiotherapy AI Motion Tracking - MVP</title>
+    
+    <!-- MediaPipe Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/pose.js" crossorigin="anonymous"></script>
+    
+    <!-- Tailwind CSS for quick styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50 h-screen overflow-hidden">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Physiotherapy AI Motion Tracking</h1>
+                <p class="text-sm text-gray-600 mt-1">Select an exercise and start tracking your form</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="audioToggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors" title="Toggle Audio">
+                    <i class="fas fa-volume-up text-gray-700" id="audioIcon"></i>
+                </button>
+                <div id="connectionStatus" class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full" id="statusDot"></div>
+                    <span class="text-sm text-gray-600" id="statusText">Camera Off</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout Container -->
+    <div class="flex h-[calc(100vh-80px)]">
+        <!-- Left Panel - Exercise Selection (30%) -->
+        <aside class="w-[30%] bg-white border-r border-gray-200 overflow-y-auto">
+            <div class="p-4">
+                <div class="mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-3">Select Exercise</h2>
+                    
+                    <!-- Exercise Categories - Hidden for now since we only have squat -->
+                    <div class="mb-4 hidden">
+                        <label class="text-sm font-medium text-gray-600">Category</label>
+                        <select id="categoryFilter" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">All Exercises</option>
+                            <option value="lower-body">Lower Body</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Exercise Cards Container -->
+                <div id="exerciseCards" class="space-y-3">
+                    <!-- Exercise cards will be dynamically inserted here -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Panel - Camera Feed (70%) -->
+        <main class="flex-1 bg-gray-100 p-6 overflow-y-auto">
+            <div class="max-w-full h-full flex flex-col">
+                <!-- Camera Controls -->
+                <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <button id="startBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2">
+                                <i class="fas fa-play"></i>
+                                Start Camera
+                            </button>
+                            <button id="stopBtn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 hidden flex items-center gap-2">
+                                <i class="fas fa-stop"></i>
+                                Stop Camera
+                            </button>
+                            <button id="startExerciseBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 hidden flex items-center gap-2" disabled>
+                                <i class="fas fa-dumbbell"></i>
+                                Start Exercise
+                            </button>
+                        </div>
+                        <div id="exerciseInfo" class="text-sm text-gray-600">
+                            <span id="selectedExercise">No exercise selected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Container -->
+                <div class="flex-1 bg-white rounded-lg shadow-sm p-4">
+                    <div class="relative video-container mx-auto h-full">
+                        <!-- Hidden video element for camera input -->
+                        <video id="inputVideo" class="hidden"></video>
+                        
+                        <!-- Canvas for displaying video with landmarks -->
+                        <canvas id="outputCanvas" class="w-full h-full rounded-lg bg-black"></canvas>
+                        
+                        <!-- Loading indicator -->
+                        <div id="loadingIndicator" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 rounded-lg hidden">
+                            <div class="text-white text-center">
+                                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                                <p>Initializing MediaPipe...</p>
+                            </div>
+                        </div>
+
+                        <!-- Exercise Overlay Instructions -->
+                        <div id="exerciseOverlay" class="absolute top-4 left-4 bg-black bg-opacity-75 text-white p-4 rounded-lg hidden max-w-sm">
+                            <h3 class="font-semibold mb-2" id="overlayTitle">Exercise Name</h3>
+                            <p class="text-sm" id="overlayInstructions">Instructions will appear here</p>
+                        </div>
+
+                        <!-- Real-time Feedback Display -->
+                        <div id="feedbackDisplay" class="absolute bottom-4 left-4 right-4 bg-black bg-opacity-75 text-white p-4 rounded-lg hidden">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-sm font-medium">Reps:</span>
+                                    <span id="repCount" class="text-xl font-bold ml-2">0</span>
+                                </div>
+                                <div id="formQuality" class="text-center">
+                                    <span class="text-sm">Form Quality</span>
+                                    <div class="text-2xl font-bold" id="formScore">--</div>
+                                </div>
+                                <div id="feedbackText" class="text-sm max-w-xs">
+                                    Ready to start
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detection Info Panel -->
+                <div class="bg-white rounded-lg shadow-sm p-4 mt-4">
+                    <div class="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <span class="font-medium text-gray-600">Landmarks:</span>
+                            <span id="landmarkCount" class="ml-2 text-gray-800">--</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-600">Visibility:</span>
+                            <span id="visibilityScore" class="ml-2 text-gray-800">--</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-600">FPS:</span>
+                            <span id="fpsCounter" class="ml-2 text-gray-800">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Load scripts in order -->
+    <script src="js/exercises.js"></script>
+    <script src="js/arm-raises-analyzer.js"></script>
+    <script src="js/audio-feedback.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
