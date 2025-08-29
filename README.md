@@ -1,47 +1,12 @@
-# Physiotherapy AI Motion Tracking MVP (Modular Architecture)
+# Physiotherapy AI Motion Tracking MVP
 
 ## 🎯 Project Overview
 An AI-powered physiotherapy motion tracking application that uses MediaPipe Pose detection to analyze body movements in real-time through webcam feed.
 
-## 🏗️ NEW: Modular Exercise Architecture
-
-The application now uses a **modular, package-based architecture** where:
-- **Each exercise is a self-contained module** with its own analyzer, audio feedback, and UI components
-- **Core functionality is shared** across all exercises (pose detection, camera, base audio)
-- **Adding new exercises doesn't require modifying existing code** - just create a new package
-
-### 📁 Project Structure
-```
-js/
-├── exercises/                    # Exercise packages
-│   ├── arm-raises/               # Arm Raises exercise module
-│   │   ├── arm-raises-analyzer.js
-│   │   ├── arm-raises-audio-feedback.js
-│   │   └── index.js              # Exercise entry point
-│   └── [future-exercises]/       # Add new exercise packages here
-├── core/                         # Shared core modules
-│   ├── audio-manager.js          # Core audio functionality
-│   └── exercise-registry.js      # Exercise management system
-├── main-modular.js               # Main application (modular version)
-├── exercises.js                  # Exercise definitions
-└── voice-commands.js             # Voice command system
-```
-
-## 📌 Current Status: Modular Architecture Ready
-**Modular Exercise System with Arm Raises Implemented**
+## 📌 Current Status: Step 2 Complete
+**Exercise Selection Panel + 30/70 Split Layout**
 
 ### ✅ Currently Implemented Features
-
-#### Fully Implemented Exercise:
-1. **Arm Raises (Upper Body)**
-   - Full movement analysis with angle calculations
-   - Phase detection (idle, raising, raised, lowering)
-   - Form error detection (asymmetry, speed, posture)
-   - Audio feedback for phases and corrections
-   - Rep counting and form scoring
-   - Real-time visual feedback
-
-#### Core Features:
 1. **Camera Integration**
    - WebRTC camera access with permission handling
    - Start/Stop camera controls
@@ -192,58 +157,24 @@ Currently tracking:
 - Canvas aspect ratio: 4:3 (desktop), 1:1 (mobile)
 - Front-facing camera used by default
 
-## 🛠️ How to Add New Exercises
-
-### Step 1: Create Exercise Package
-Create a new folder under `js/exercises/your-exercise-name/` with:
-
-1. **Analyzer** (`your-exercise-analyzer.js`):
-   - Extend or create new analyzer class
-   - Define exercise states and thresholds
-   - Implement `analyze(landmarks)` method
-
-2. **Audio Feedback** (`your-exercise-audio-feedback.js`):
-   - Extend core audio feedback
-   - Define exercise-specific voice prompts
-   - Implement phase announcements
-
-3. **Index** (`index.js`):
-   - Create exercise class that implements standard interface
-   - Register with exercise registry
-
-### Step 2: Register Exercise
-```javascript
-// In main-modular.js initializeExerciseSystem()
-const yourExercise = new YourExercise();
-window.exerciseRegistry.register(yourExercise);
-```
-
-### Step 3: Add Exercise Definition
-Add to `js/exercises.js` array for UI display.
-
 ## 🎯 Final Goal
 Build a complete physiotherapy AI assistant capable of:
-- ✅ Multiple exercise tracking (modular system ready)
-- ✅ Real-time form correction (implemented for arm raises)
+- Multiple exercise tracking
+- Real-time form correction
 - Progress monitoring
 - Personalized feedback
 - Session analytics
 
 ---
 
-**Current Development Stage**: Modular Architecture Complete ✅
+**Current Development Stage**: MVP Step 2 - Exercise Selection & Split Layout ✅
 
-### What's New:
-- ✅ **Modular exercise system** - Each exercise is a self-contained package
-- ✅ **Clean separation** - Core functionality vs exercise-specific logic  
-- ✅ **Easy extensibility** - Add new exercises without touching existing code
-- ✅ **Arm Raises fully functional** - Complete with all advanced features
-- ✅ **All features working**:
-  - 30/70 split layout
-  - Exercise selection panel
-  - Category filtering
-  - Exercise state management
-  - Visual and audio feedback
-  - Voice commands
+### What's New in Step 2:
+- ✅ 30/70 split layout implemented
+- ✅ Exercise selection panel with 8 exercises
+- ✅ Category filtering
+- ✅ Exercise state management
+- ✅ Visual feedback indicators
+- ✅ Professional UI improvements
 
-Ready for adding more exercises using the modular system!
+Ready for Step 3: Implementing specific exercise logic and angle calculations!

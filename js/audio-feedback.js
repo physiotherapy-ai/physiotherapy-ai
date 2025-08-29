@@ -1,10 +1,9 @@
 /**
- * Core Audio Feedback System for Physiotherapy Exercises
- * Provides generic audio functionality that can be extended by specific exercises
+ * Audio Feedback System for Physiotherapy Exercises
  * Uses Web Speech API for text-to-speech feedback
  */
 
-class CoreAudioFeedback {
+class AudioFeedback {
     constructor() {
         // Check if speech synthesis is available
         this.speechAvailable = 'speechSynthesis' in window;
@@ -24,6 +23,11 @@ class CoreAudioFeedback {
         this.minFeedbackInterval = 3000; // Minimum 3 seconds between same feedback
         this.lastErrorTime = 0;
         this.errorCooldown = 5000; // 5 seconds between error announcements
+        
+        // Track phase announcements
+        this.lastPhase = '';
+        this.currentPhase = '';
+        this.repAnnounced = false;
         
         // Initialize voices
         if (this.speechAvailable) {
@@ -135,9 +139,76 @@ class CoreAudioFeedback {
     }
     
     /**
-     * Announce rep completion (generic for all exercises)
+     * Provide feedback for exercise phases with hold timer
      */
-    announceRep(repCount, exerciseName = 'exercise') {
+    announcePhase(phase, angles = null, holdDuration = 0, holdComplete = false) {
+        if (!this.enabled) return;
+        
+        // Only announce phase changes
+        if (phase === this.lastPhase) return;
+        
+        // Check if enough time has passed since last announcement
+        const now = Date.now();
+        const timeSinceLastFeedback = now - this.lastFeedbackTime;
+        
+        switch(phase) {
+            case 'resting':
+                if (this.lastPhase === 'lowering') {
+                    // After 2 seconds, prompt for next movement
+                    setTimeout(() => {
+                        if (this.enabled && this.currentPhase === 'resting') {
+                            this.speak('Raise your arms again', 'normal');
+                            this.playBeep(440, 100); // A4 ready beep
+                        }
+                    }, 2000);
+                } else if (this.lastPhase === '') {
+                    // Starting position
+                    this.speak('Ready to begin. Raise your arms slowly.', 'normal');
+                }
+                break;
+                
+            case 'raising':
+                // Only announce if coming from resting, not from other phases
+                if (this.lastPhase === 'resting' && timeSinceLastFeedback > 3000) {
+                    // Don't speak every time, just beep
+                    // this.speak('Raise arms', 'normal');
+                    this.playBeep(523, 150); // C5 note
+                }
+                break;
+                
+            case 'holding':
+                // Simple hold instruction
+                if (this.lastPhase === 'raising') {
+                    // Just reached holding position
+                    this.speak('Hold for 3 seconds', 'high');
+                    this.playBeep(659, 150); // E5 note
+                    
+                    // After 3 seconds, tell to lower
+                    setTimeout(() => {
+                        if (this.enabled && this.currentPhase === 'holding') {
+                            this.speak('Down your hands slowly', 'high');
+                            this.playBeep(392, 200);
+                        }
+                    }, 3000);
+                }
+                break;
+                
+            case 'lowering':
+                // Just beep when lowering starts
+                if (this.lastPhase === 'holding') {
+                    this.playBeep(392, 100);
+                }
+                break;
+        }
+        
+        this.lastPhase = phase;
+        this.currentPhase = phase;
+    }
+    
+    /**
+     * Announce rep completion
+     */
+    announceRep(repCount) {
         if (!this.enabled) return;
         
         // Beep for rep completion (quiet)
@@ -170,7 +241,46 @@ class CoreAudioFeedback {
     }
     
     /**
-     * Provide positive reinforcement (generic)
+     * Provide error correction feedback
+     */
+    announceError(errors) {
+        if (!this.enabled || errors.size === 0) return;
+        
+        const now = Date.now();
+        
+        // Check cooldown - don't announce errors too frequently
+        if (now - this.lastErrorTime < this.errorCooldown) {
+            return;
+        }
+        
+        // Priority order for error feedback (removed shoulder shrug messages)
+        const errorMessages = {
+            'arm_too_high_left': 'Lower your left arm slightly',
+            'arm_too_high_right': 'Lower your right arm slightly',
+            'asymmetric_movement': 'Keep both arms at the same height',
+            'elbow_bent_left': 'Straighten your left arm',
+            'elbow_bent_right': 'Straighten your right arm',
+            'too_fast_raising': 'Slower movement please',
+            'insufficient_height': 'Raise arms higher to shoulder level'
+        };
+        
+        // Find the first error that has a message
+        for (const [errorKey, message] of Object.entries(errorMessages)) {
+            if (errors.has(errorKey)) {
+                // Don't repeat the same error message too frequently
+                if (this.lastFeedback !== message || now - this.lastFeedbackTime > 8000) {
+                    this.speak(message, 'high');
+                    // Play warning beep
+                    this.playBeep(300, 200, 0.2); // Lower frequency for warning
+                    this.lastErrorTime = now;
+                }
+                break; // Only announce one error at a time
+            }
+        }
+    }
+    
+    /**
+     * Provide positive reinforcement
      */
     provideEncouragement(formScore) {
         if (!this.enabled) return;
@@ -194,7 +304,20 @@ class CoreAudioFeedback {
     }
     
     /**
-     * Announce exercise completion (generic)
+     * Announce exercise start
+     */
+    announceExerciseStart(exerciseName) {
+        if (!this.enabled) return;
+        
+        this.speak(`Starting ${exerciseName}. Stand with arms at your sides.`, 'high');
+        
+        setTimeout(() => {
+            this.speak('Raise and lower your arms slowly. Let\'s begin!', 'normal');
+        }, 3000);
+    }
+    
+    /**
+     * Announce exercise completion
      */
     announceExerciseComplete(repCount, avgFormScore) {
         if (!this.enabled) return;
@@ -237,11 +360,14 @@ class CoreAudioFeedback {
      * Reset for new session
      */
     reset() {
+        this.lastPhase = '';
         this.lastFeedback = '';
         this.lastFeedbackTime = 0;
         this.lastErrorTime = 0;
+        this.repAnnounced = false;
+        this.currentPhase = '';
     }
 }
 
 // Export for use in main app
-window.CoreAudioFeedback = CoreAudioFeedback;
+window.AudioFeedback = AudioFeedback;
