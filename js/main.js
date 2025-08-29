@@ -1,6 +1,6 @@
 /**
- * Physiotherapy AI Motion Tracking - Main JavaScript
- * With Arm Raises Analysis and Audio Feedback Integration
+ * Physiotherapy AI Motion Tracking - Main JavaScript (Modular Architecture)
+ * Uses modular exercise system for better organization and scalability
  */
 
 // Global variables
@@ -8,12 +8,15 @@ let camera = null;
 let pose = null;
 let isRunning = false;
 let selectedExercise = null;
+let currentExerciseModule = null;
 let exerciseActive = false;
 let repCount = 0;
 let lastFrameTime = 0;
 let fps = 0;
-let exerciseAnalyzer = null;
-let audioFeedback = null;
+let coreAudioFeedback = null;
+let voiceCommands = null;
+let frameSkipCounter = 0;
+const FRAME_SKIP_RATE = 2; // Process every 2nd frame for better performance
 
 // DOM Elements
 const startBtn = document.getElementById('startBtn');
@@ -34,12 +37,19 @@ const categoryFilter = document.getElementById('categoryFilter');
 const exerciseOverlay = document.getElementById('exerciseOverlay');
 const overlayTitle = document.getElementById('overlayTitle');
 const overlayInstructions = document.getElementById('overlayInstructions');
+const exerciseAnimation = document.getElementById('exerciseAnimation');
+const animationImage = document.getElementById('animationImage');
 const feedbackDisplay = document.getElementById('feedbackDisplay');
 const repCountElement = document.getElementById('repCount');
 const formScoreElement = document.getElementById('formScore');
 const feedbackText = document.getElementById('feedbackText');
 const audioToggle = document.getElementById('audioToggle');
 const audioIcon = document.getElementById('audioIcon');
+const voiceToggle = document.getElementById('voiceToggle');
+const voiceIcon = document.getElementById('voiceIcon');
+const voiceStatusDot = document.getElementById('voiceStatusDot');
+const voiceStatusText = document.getElementById('voiceStatusText');
+const voiceHelp = document.getElementById('voiceHelp');
 
 // MediaPipe Pose Configuration
 const poseConfig = {
@@ -62,6 +72,100 @@ function initializePose() {
     });
     
     pose.onResults(onPoseResults);
+}
+
+// Initialize modular exercise system
+function initializeExerciseSystem() {
+    // Initialize core audio feedback
+    coreAudioFeedback = new window.CoreAudioFeedback();
+    
+    // Register arm raises exercise
+    const armRaisesExercise = new window.ArmRaisesExercise();
+    window.exerciseRegistry.register(armRaisesExercise);
+    
+    // Initialize all exercises with core audio
+    window.exerciseRegistry.initializeAll(coreAudioFeedback);
+    
+    // Initialize voice commands
+    voiceCommands = new window.VoiceCommands((command, params) => {
+        handleVoiceCommand(command, params);
+    }, (status) => {
+        // Update voice status display
+        if (status === 'listening') {
+            voiceStatusDot.className = 'voice-status-dot voice-listening';
+            voiceStatusText.textContent = 'Listening...';
+        } else if (status === 'processing') {
+            voiceStatusDot.className = 'voice-status-dot voice-processing';
+            voiceStatusText.textContent = 'Processing...';
+        } else {
+            voiceStatusDot.className = 'voice-status-dot';
+            voiceStatusText.textContent = 'Voice Off';
+        }
+    });
+}
+
+// Handle voice commands
+function handleVoiceCommand(command, params) {
+    console.log('Voice command received:', command, params);
+    
+    switch(command) {
+        case 'start_camera':
+            if (!isRunning) {
+                startCamera();
+            }
+            break;
+        case 'stop_camera':
+            if (isRunning) {
+                stopCamera();
+            }
+            break;
+        case 'start_exercise':
+            if (isRunning && selectedExercise && !exerciseActive) {
+                startExerciseTracking();
+            }
+            break;
+        case 'stop_exercise':
+            if (exerciseActive) {
+                stopExerciseTracking();
+            }
+            break;
+        case 'select_exercise':
+            if (params.exerciseName) {
+                const exerciseMap = {
+                    'arm raises': 'arm-raises',
+                    'lateral arm raises': 'arm-raises',
+                    'arm raise': 'arm-raises'
+                };
+                const exerciseId = exerciseMap[params.exerciseName.toLowerCase()];
+                if (exerciseId) {
+                    selectExerciseById(exerciseId);
+                }
+            }
+            break;
+        case 'mute_audio':
+            if (coreAudioFeedback) {
+                coreAudioFeedback.enabled = false;
+                updateAudioToggleUI(false);
+            }
+            break;
+        case 'unmute_audio':
+            if (coreAudioFeedback) {
+                coreAudioFeedback.enabled = true;
+                updateAudioToggleUI(true);
+            }
+            break;
+    }
+}
+
+// Update audio toggle UI
+function updateAudioToggleUI(isEnabled) {
+    if (isEnabled) {
+        audioIcon.className = 'fas fa-volume-up text-gray-700';
+        audioToggle.title = 'Mute Audio';
+    } else {
+        audioIcon.className = 'fas fa-volume-mute text-gray-400';
+        audioToggle.title = 'Unmute Audio';
+    }
 }
 
 // Process pose detection results
@@ -104,7 +208,7 @@ function onPoseResults(results) {
         updateLandmarkInfo(results.poseLandmarks);
         
         // Process exercise if active
-        if (exerciseActive && selectedExercise) {
+        if (exerciseActive && currentExerciseModule) {
             processExercise(results.poseLandmarks);
         }
     } else {
@@ -129,98 +233,153 @@ function updateLandmarkInfo(landmarks) {
     visibilityScore.textContent = `${visibilityPercent}%`;
 }
 
-// Process exercise movements
+// Process exercise movements using modular system
 function processExercise(landmarks) {
-    if (selectedExercise.id === 'lateral-arm-raises' && exerciseAnalyzer) {
-        // Analyze arm raises movement
-        const analysis = exerciseAnalyzer.analyze(landmarks);
+    if (!currentExerciseModule) return;
+    
+    try {
+        // Analyze pose using the exercise module
+        const analysis = currentExerciseModule.analyzePose(landmarks);
         
         if (analysis) {
-            // Check for rep completion
-            if (analysis.repCount > repCount) {
-                // New rep completed
-                if (audioFeedback) {
-                    audioFeedback.announceRep(analysis.repCount);
-                }
-            }
-            
-            // Update rep count
-            repCountElement.textContent = analysis.repCount;
-            repCount = analysis.repCount;
-            
-            // Update form score with color coding
-            formScoreElement.textContent = `${analysis.formScore}%`;
-            formScoreElement.className = 'text-2xl font-bold';
-            
-            if (analysis.formScore >= 90) {
-                formScoreElement.classList.add('form-excellent');
-            } else if (analysis.formScore >= 75) {
-                formScoreElement.classList.add('form-good');
-            } else if (analysis.formScore >= 60) {
-                formScoreElement.classList.add('form-fair');
+        // Check for rep completion
+        if (analysis.repCount > repCount) {
+            // New rep completed
+            currentExerciseModule.handleRepComplete(analysis.repCount);
+        }
+        
+        // Update rep count
+        repCountElement.textContent = analysis.repCount;
+        repCount = analysis.repCount;
+        
+        // Update form score with color coding
+        formScoreElement.textContent = `${analysis.formScore}%`;
+        formScoreElement.className = 'text-2xl font-bold';
+        
+        if (analysis.formScore >= 90) {
+            formScoreElement.classList.add('form-excellent');
+        } else if (analysis.formScore >= 75) {
+            formScoreElement.classList.add('form-good');
+        } else if (analysis.formScore >= 60) {
+            formScoreElement.classList.add('form-fair');
+        } else {
+            formScoreElement.classList.add('form-poor');
+        }
+        
+        // Update feedback text based on state
+        // Use generic state messages or exercise-specific feedback
+        const genericStateMessages = {
+            'idle': 'Ready to begin',
+            'resting': 'Ready to begin',
+            'raising': 'Moving up',
+            'raised': 'Hold position',
+            'holding': 'Hold position',
+            'bridge_hold': 'Hold position',
+            'lowering': 'Lowering down',
+            'not_visible': 'Adjust position'
+        };
+        
+        // Check if exercise provides real-time feedback
+        if (currentExerciseModule.getRealtimeFeedback) {
+            const realtimeFeedback = currentExerciseModule.getRealtimeFeedback(analysis);
+            if (realtimeFeedback && realtimeFeedback.primary) {
+                feedbackText.textContent = realtimeFeedback.primary;
             } else {
-                formScoreElement.classList.add('form-poor');
+                feedbackText.textContent = genericStateMessages[analysis.state] || analysis.state;
             }
+        } else {
+            feedbackText.textContent = genericStateMessages[analysis.state] || analysis.state;
+        }
+        
+        // Handle audio feedback through the module
+        currentExerciseModule.handleAudioFeedback(analysis);
+        
+        // Visual feedback overlay based on errors
+        if (analysis.formErrors.length === 0) {
+            drawFormOverlay('good');
+        } else if (analysis.formErrors.length <= 2) {
+            drawFormOverlay('warning');
+        } else {
+            drawFormOverlay('error');
+        }
+        
+        // Update phase indicator in overlay
+        updateOverlayInstructions(analysis);
+        }
+    } catch (error) {
+        console.error('Error processing exercise:', error);
+        feedbackText.textContent = 'Error processing movement';
+    }
+}
+
+// Update overlay instructions based on analysis
+function updateOverlayInstructions(analysis) {
+    // Check if exercise provides real-time feedback
+    if (currentExerciseModule && currentExerciseModule.getRealtimeFeedback) {
+        const feedback = currentExerciseModule.getRealtimeFeedback(analysis);
+        if (feedback) {
+            overlayInstructions.textContent = feedback.secondary || feedback.primary || analysis.state;
+            return;
+        }
+    }
+    
+    // Generic phase messages
+    const genericPhaseText = {
+        'idle': 'Ready Position',
+        'resting': 'Ready to Begin',
+        'raising': 'Moving Up',
+        'raised': 'Hold Position', 
+        'holding': 'Hold Position',
+        'bridge_hold': 'Hold Bridge',
+        'lowering': 'Lowering Down',
+        'not_visible': 'Adjust Position'
+    };
+    
+    // For arm raises specific (backward compatibility)
+    if (selectedExercise && (selectedExercise.id === 'lateral-arm-raises' || selectedExercise.id === 'arm-raises')) {
+        const armRaisesPhaseText = {
+            'resting': 'Arms Down - Ready',
+            'raising': 'Raising Arms',
+            'holding': 'Hold at Shoulder Height',
+            'lowering': 'Lowering Arms'
+        };
+        
+        if (analysis.state !== 'resting') {
+            overlayInstructions.textContent = armRaisesPhaseText[analysis.state] || analysis.state;
+        }
+        
+        // Show current arm angles for user feedback
+        if ((analysis.state === 'raising' || analysis.state === 'holding') && analysis.angles && analysis.angles.leftShoulder) {
+            const angleDisplay = `L: ${analysis.angles.leftShoulder.toFixed(0)}° | R: ${analysis.angles.rightShoulder.toFixed(0)}°`;
             
-            // Update feedback text
-            feedbackText.textContent = analysis.feedback;
-            
-            // Audio feedback for phases and errors
-            if (audioFeedback) {
-                // Announce phase changes with hold duration
-                audioFeedback.announcePhase(
-                    analysis.phase, 
-                    analysis.angles, 
-                    analysis.holdDuration || 0,
-                    analysis.holdComplete || false
-                );
-                
-                // Announce errors if any
-                if (analysis.errors.length > 0) {
-                    audioFeedback.announceError(new Set(analysis.errors));
-                } else if (analysis.phase === 'holding') {
-                    // Provide encouragement when form is good
-                    audioFeedback.provideEncouragement(analysis.formScore);
-                }
-            }
-            
-            // Visual feedback overlay based on errors
-            if (analysis.errors.length === 0) {
-                // Green overlay for good form
-                drawFormOverlay('good');
-            } else if (analysis.errors.length <= 2) {
-                // Yellow overlay for minor issues
-                drawFormOverlay('warning');
+            // Show hold timer if in holding phase
+            if (analysis.state === 'holding' && analysis.holdProgress) {
+                const progress = Math.floor(analysis.holdProgress);
+                const holdText = progress >= 100 ? 'Hold complete - Lower now!' : `Holding: ${Math.floor(progress / 33)}/3 sec`;
+                overlayInstructions.textContent = `${holdText} - ${angleDisplay}`;
             } else {
-                // Red overlay for major issues
-                drawFormOverlay('error');
+                overlayInstructions.textContent = `${armRaisesPhaseText[analysis.state]} - ${angleDisplay}`;
             }
-            
-            // Update phase indicator in overlay
-            const phaseText = {
-                'resting': 'Arms Down - Ready',
-                'raising': 'Raising Arms',
-                'holding': 'Hold at Shoulder Height',
-                'lowering': 'Lowering Arms'
-            };
-            
-            if (analysis.phase !== 'resting') {
-                overlayInstructions.textContent = phaseText[analysis.phase] || analysis.phase;
+        }
+    } else {
+        // Generic handling for other exercises
+        overlayInstructions.textContent = genericPhaseText[analysis.state] || analysis.state;
+        
+        // Add angle display if available
+        if (analysis.angles) {
+            const angleKeys = Object.keys(analysis.angles);
+            if (angleKeys.length > 0) {
+                const angleDisplay = angleKeys.slice(0, 2).map(key => 
+                    `${key}: ${analysis.angles[key]}°`
+                ).join(' | ');
+                overlayInstructions.textContent += ` - ${angleDisplay}`;
             }
-            
-            // Show current arm angles for user feedback
-            if (analysis.phase === 'raising' || analysis.phase === 'holding') {
-                const angleDisplay = `L: ${analysis.angles.leftArm.toFixed(0)}° | R: ${analysis.angles.rightArm.toFixed(0)}°`;
-                
-                // Show hold timer if in holding phase
-                if (analysis.phase === 'holding' && analysis.holdDuration) {
-                    const secondsHeld = Math.floor(analysis.holdDuration / 1000);
-                    const holdText = analysis.holdComplete ? 'Hold complete - Lower now!' : `Holding: ${secondsHeld}/3 sec`;
-                    overlayInstructions.textContent = `${holdText} - ${angleDisplay}`;
-                } else {
-                    overlayInstructions.textContent = `${phaseText[analysis.phase]} - ${angleDisplay}`;
-                }
-            }
+        }
+        
+        // Add hold time if available
+        if (analysis.holdTime && analysis.holdTime > 0) {
+            const seconds = Math.round(analysis.holdTime / 1000);
+            overlayInstructions.textContent += ` (${seconds}s)`;
         }
     }
 }
@@ -265,6 +424,9 @@ function renderExerciseCards(filterCategory = 'all') {
         card.className = 'exercise-card bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border-2 border-transparent';
         card.dataset.exerciseId = exercise.id;
         
+        // Check if this exercise has a module registered
+        const hasModule = window.exerciseRegistry.getExercise(exercise.id) !== undefined;
+        
         card.innerHTML = `
             <div class="flex items-start gap-3">
                 <div class="text-2xl text-blue-500">
@@ -280,6 +442,7 @@ function renderExerciseCards(filterCategory = 'all') {
                         <span class="text-xs text-gray-500">
                             ${exercise.duration}
                         </span>
+                        ${hasModule ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Available</span>' : ''}
                     </div>
                     <div class="mt-2">
                         <span class="text-xs text-gray-500">Targets: </span>
@@ -289,76 +452,102 @@ function renderExerciseCards(filterCategory = 'all') {
             </div>
         `;
         
-        card.addEventListener('click', () => selectExercise(exercise, card));
+        // Add click event
+        card.addEventListener('click', () => selectExercise(exercise));
+        
         exerciseCardsContainer.appendChild(card);
     });
 }
 
-// Select an exercise
-function selectExercise(exercise, cardElement) {
-    // Remove previous selection
-    document.querySelectorAll('.exercise-card').forEach(card => {
-        card.classList.remove('selected');
-    });
+// Select exercise
+function selectExercise(exercise) {
+    // Stop current exercise if active
+    if (exerciseActive) {
+        stopExerciseTracking();
+    }
     
-    // Mark new selection
-    cardElement.classList.add('selected');
     selectedExercise = exercise;
     
-    // Update UI
-    selectedExerciseText.textContent = `Selected: ${exercise.name}`;
+    // Check if exercise module exists
+    currentExerciseModule = window.exerciseRegistry.getExercise(exercise.id);
     
-    // Enable start exercise button if camera is running
+    if (!currentExerciseModule) {
+        // For now, check for arm-raises mapping
+        if (exercise.id === 'lateral-arm-raises' || exercise.id === 'arm-raises') {
+            // Map lateral-arm-raises to arm-raises module
+            currentExerciseModule = window.exerciseRegistry.getExercise('arm-raises');
+        } else {
+            console.log(`No module found for exercise: ${exercise.id}`);
+            alert('This exercise is not yet implemented in the modular system.');
+            return;
+        }
+    }
+    
+    // Reset the module for the new exercise
+    if (currentExerciseModule && currentExerciseModule.reset) {
+        currentExerciseModule.reset();
+    }
+    
+    // Update UI
+    selectedExerciseText.textContent = exercise.name;
+    
+    // Highlight selected card
+    document.querySelectorAll('.exercise-card').forEach(card => {
+        if (card.dataset.exerciseId === exercise.id) {
+            card.classList.add('border-blue-500', 'bg-blue-50');
+        } else {
+            card.classList.remove('border-blue-500', 'bg-blue-50');
+        }
+    });
+    
+    // Enable start button if camera is running
     if (isRunning) {
         startExerciseBtn.disabled = false;
         startExerciseBtn.classList.remove('hidden');
     }
-    
-    console.log('Selected exercise:', exercise.name);
+}
+
+// Select exercise by ID (for voice commands)
+function selectExerciseById(exerciseId) {
+    const exercise = window.EXERCISES.find(ex => ex.id === exerciseId);
+    if (exercise) {
+        selectExercise(exercise);
+    }
 }
 
 // Start exercise tracking
 function startExerciseTracking() {
-    if (!selectedExercise) return;
+    if (!selectedExercise || !currentExerciseModule) return;
     
     exerciseActive = true;
     repCount = 0;
     
-    // Initialize appropriate analyzer
-    if (selectedExercise.id === 'lateral-arm-raises') {
-        if (!exerciseAnalyzer) {
-            exerciseAnalyzer = new window.ArmRaisesAnalyzer();
-        } else {
-            exerciseAnalyzer.reset();
-        }
-    }
-    
-    // Initialize audio feedback if not already done
-    if (!audioFeedback) {
-        audioFeedback = new window.AudioFeedback();
-    } else {
-        audioFeedback.reset();
-    }
-    
-    // Announce exercise start
-    audioFeedback.announceExerciseStart(selectedExercise.name);
-    
-    // Update UI
-    startExerciseBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Exercise';
-    startExerciseBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
-    startExerciseBtn.classList.add('bg-orange-500', 'hover:bg-orange-600');
+    // Start the exercise module
+    currentExerciseModule.start();
     
     // Show exercise overlay
-    overlayTitle.textContent = selectedExercise.name;
-    overlayInstructions.textContent = selectedExercise.instructions[0];
     exerciseOverlay.classList.remove('hidden');
+    overlayTitle.textContent = selectedExercise.name;
+    overlayInstructions.textContent = 'Get ready to begin...';
+    
+    // Show animation if available
+    if (selectedExercise.demoAnimation) {
+        animationImage.src = selectedExercise.demoAnimation;
+        exerciseAnimation.classList.remove('hidden');
+    } else {
+        exerciseAnimation.classList.add('hidden');
+    }
     
     // Show feedback display
     feedbackDisplay.classList.remove('hidden');
     repCountElement.textContent = '0';
     formScoreElement.textContent = '100%';
-    formScoreElement.className = 'text-2xl font-bold form-excellent';
-    feedbackText.textContent = 'Stand upright with arms at your sides';
+    feedbackText.textContent = 'Starting exercise...';
+    
+    // Update UI
+    startExerciseBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Exercise';
+    startExerciseBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+    startExerciseBtn.classList.add('bg-orange-500', 'hover:bg-orange-600');
     
     console.log('Exercise tracking started:', selectedExercise.name);
 }
@@ -367,18 +556,10 @@ function startExerciseTracking() {
 function stopExerciseTracking() {
     exerciseActive = false;
     
-    const finalFormScore = exerciseAnalyzer ? exerciseAnalyzer.formScore : 0;
-    
-    // Announce completion with audio
-    if (audioFeedback && repCount > 0) {
-        audioFeedback.announceExerciseComplete(repCount, finalFormScore);
-    }
-    
-    // Show summary if reps were completed
-    if (repCount > 0) {
-        setTimeout(() => {
-            alert(`Great workout! You completed ${repCount} reps with an average form score of ${finalFormScore}%`);
-        }, 2000); // Delay to let audio finish
+    // Stop the exercise module and get final progress
+    let finalProgress = null;
+    if (currentExerciseModule) {
+        finalProgress = currentExerciseModule.stop();
     }
     
     // Update UI
@@ -390,8 +571,11 @@ function stopExerciseTracking() {
     exerciseOverlay.classList.add('hidden');
     feedbackDisplay.classList.add('hidden');
     
-    console.log('Exercise tracking stopped. Total reps:', repCount);
+    console.log('Exercise tracking stopped. Final progress:', finalProgress);
 }
+
+// Make function globally accessible for audio feedback
+window.stopExerciseTracking = stopExerciseTracking;
 
 // Start camera and pose detection
 async function startCamera() {
@@ -414,15 +598,19 @@ async function startCamera() {
         canvasElement.width = containerRect.width;
         canvasElement.height = containerRect.height;
         
-        // Initialize camera
+        // Initialize camera with optimized settings
         camera = new Camera(videoElement, {
             onFrame: async () => {
                 if (pose && isRunning) {
-                    await pose.send({ image: videoElement });
+                    // Skip frames for better performance
+                    frameSkipCounter++;
+                    if (frameSkipCounter % FRAME_SKIP_RATE === 0) {
+                        await pose.send({ image: videoElement });
+                    }
                 }
             },
             width: 1280,
-            height: 960,
+            height: 720,  // Reduced height for better performance
             facingMode: 'user' // Use front camera by default
         });
         
@@ -506,20 +694,42 @@ categoryFilter.addEventListener('change', (e) => {
 
 // Audio toggle button
 audioToggle.addEventListener('click', () => {
-    if (!audioFeedback) {
-        audioFeedback = new window.AudioFeedback();
+    if (!coreAudioFeedback) {
+        coreAudioFeedback = new window.CoreAudioFeedback();
     }
     
-    const isEnabled = audioFeedback.toggle();
-    
-    // Update icon
-    if (isEnabled) {
-        audioIcon.className = 'fas fa-volume-up text-gray-700';
-        audioToggle.title = 'Mute Audio';
-    } else {
-        audioIcon.className = 'fas fa-volume-mute text-gray-400';
-        audioToggle.title = 'Unmute Audio';
+    const isEnabled = coreAudioFeedback.toggle();
+    updateAudioToggleUI(isEnabled);
+});
+
+// Voice toggle button
+voiceToggle.addEventListener('click', () => {
+    if (!voiceCommands) {
+        console.log('Voice commands not available');
+        return;
     }
+    
+    if (!voiceCommands.isVoiceSupported()) {
+        alert('Voice commands are not supported in this browser. Please use Chrome, Edge, or Safari.');
+        return;
+    }
+    
+    const wasListening = voiceCommands.getListeningState();
+    voiceCommands.toggleListening();
+    
+    // Update icon - the voice command system will update status via callback
+    setTimeout(() => {
+        const isListening = voiceCommands.getListeningState();
+        if (isListening) {
+            voiceIcon.className = 'fas fa-microphone text-green-600';
+            voiceToggle.title = 'Turn Off Voice Commands';
+            voiceHelp.classList.remove('hidden');
+        } else {
+            voiceIcon.className = 'fas fa-microphone-slash text-gray-400';
+            voiceToggle.title = 'Turn On Voice Commands';
+            voiceHelp.classList.add('hidden');
+        }
+    }, 100);
 });
 
 // Handle page unload
@@ -538,6 +748,9 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Error: Your browser does not support camera access');
     }
     
+    // Initialize exercise system
+    initializeExerciseSystem();
+    
     // Load exercise cards
     renderExerciseCards();
     
@@ -551,10 +764,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    // Initial resize
     resizeCanvas();
+    
+    // Handle window resize
     window.addEventListener('resize', resizeCanvas);
     
-    console.log('Physiotherapy AI Motion Tracking initialized');
-    console.log('MediaPipe Pose ready for use');
-    console.log(`Loaded ${window.EXERCISES ? window.EXERCISES.length : 0} exercises`);
+    console.log('Physiotherapy AI Motion Tracking initialized - Modular Architecture');
 });

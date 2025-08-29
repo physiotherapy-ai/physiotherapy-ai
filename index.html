@@ -31,6 +31,13 @@
                 <button id="audioToggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors" title="Toggle Audio">
                     <i class="fas fa-volume-up text-gray-700" id="audioIcon"></i>
                 </button>
+                <button id="voiceToggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors" title="Toggle Voice Commands">
+                    <i class="fas fa-microphone text-gray-700" id="voiceIcon"></i>
+                </button>
+                <div id="voiceStatus" class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full" id="voiceStatusDot"></div>
+                    <span class="text-sm text-gray-600" id="voiceStatusText">Voice Off</span>
+                </div>
                 <div id="connectionStatus" class="flex items-center gap-2">
                     <div class="w-2 h-2 bg-gray-400 rounded-full" id="statusDot"></div>
                     <span class="text-sm text-gray-600" id="statusText">Camera Off</span>
@@ -54,6 +61,18 @@
                             <option value="all">All Exercises</option>
                             <option value="lower-body">Lower Body</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- Voice Commands Help -->
+                <div id="voiceHelp" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
+                    <h3 class="text-sm font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                        <i class="fas fa-microphone"></i>
+                        Voice Commands
+                    </h3>
+                    <div class="text-xs text-blue-700 space-y-1">
+                        <div><strong>Camera:</strong> "start camera", "stop camera"</div>
+                        <div><strong>Exercise:</strong> "start exercise", "stop exercise"</div>
                     </div>
                 </div>
 
@@ -109,6 +128,11 @@
 
                         <!-- Exercise Overlay Instructions -->
                         <div id="exerciseOverlay" class="absolute top-4 left-4 bg-black bg-opacity-75 text-white p-4 rounded-lg hidden max-w-sm">
+                            <div id="exerciseAnimation" class="mb-3 hidden">
+                                <div class="w-32 h-24 bg-white rounded flex items-center justify-center">
+                                    <img id="animationImage" src="" alt="Exercise Demo" class="max-w-full max-h-full object-contain">
+                                </div>
+                            </div>
                             <h3 class="font-semibold mb-2" id="overlayTitle">Exercise Name</h3>
                             <p class="text-sm" id="overlayInstructions">Instructions will appear here</p>
                         </div>
@@ -153,10 +177,22 @@
         </main>
     </div>
 
-    <!-- Load scripts in order -->
+    <!-- Load scripts in order - Modular System -->
+    <!-- Core modules -->
+    <script src="js/core/audio-manager.js"></script>
+    <script src="js/core/exercise-registry.js"></script>
+
+    <!-- Exercise modules -->
+    <!-- Arm Raises Exercise -->
+    <script src="js/exercises/arm-raises/arm-raises-analyzer.js"></script>
+    <script src="js/exercises/arm-raises/arm-raises-audio-feedback.js"></script>
+    <script src="js/exercises/arm-raises/index.js"></script>
+
+    <!-- Existing modules -->
     <script src="js/exercises.js"></script>
-    <script src="js/arm-raises-analyzer.js"></script>
-    <script src="js/audio-feedback.js"></script>
+    <script src="js/voice-commands.js"></script>
+
+    <!-- Main application -->
     <script src="js/main.js"></script>
 </body>
 </html>

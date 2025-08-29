@@ -14,6 +14,7 @@ const EXERCISES = [
         reps: '10-15',
         icon: 'fa-solid fa-hands',
         description: 'Shoulder strengthening and mobility exercise commonly used in physiotherapy',
+        demoAnimation: 'https://wellnessed.com/wp-content/uploads/2023/03/how-to-do-dumbbell-lateral-raise.gif',
         instructions: [
             'Stand with arms at your sides',
             'Keep arms straight but not locked',
