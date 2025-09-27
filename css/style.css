@@ -2,197 +2,203 @@
 
 /* Split Layout Styles */
 .split-layout {
-    display: flex;
-    height: calc(100vh - 80px);
+  display: flex;
+  height: calc(100vh - 80px);
 }
 
 /* Exercise Panel Styles */
 .exercise-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: 2px solid transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
 }
 
 .exercise-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .exercise-card.selected {
-    border-color: #3b82f6;
-    background-color: #eff6ff;
+  border-color: #3b82f6;
+  background-color: #eff6ff;
 }
 
 .exercise-card .difficulty-badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
 }
 
 .difficulty-beginner {
-    background-color: #10b981;
-    color: white;
+  background-color: #10b981;
+  color: white;
 }
 
 .difficulty-intermediate {
-    background-color: #f59e0b;
-    color: white;
+  background-color: #f59e0b;
+  color: white;
 }
 
 .difficulty-advanced {
-    background-color: #ef4444;
-    color: white;
+  background-color: #ef4444;
+  color: white;
 }
 
 /* Video Container Styles */
 .video-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-color: #1f2937;
-    border-radius: 0.5rem;
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #1f2937;
+  border-radius: 0.5rem;
+  /* overflow: hidden; */
 }
 
 /* Canvas Styles */
 #outputCanvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    background-color: #000;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #000;
 }
 
 /* Loading Animation */
 @keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Button States */
 button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Status Messages */
 .status-success {
-    color: #059669;
+  color: #059669;
 }
 
 .status-error {
-    color: #dc2626;
+  color: #dc2626;
 }
 
 .status-warning {
-    color: #d97706;
+  color: #d97706;
 }
 
 /* Landmark Visualization Customization */
 .landmark-dot {
-    fill: #ef4444;
-    stroke: #ffffff;
-    stroke-width: 2;
+  fill: #ef4444;
+  stroke: #ffffff;
+  stroke-width: 2;
 }
 
 .landmark-line {
-    stroke: #ef4444;
-    stroke-width: 3;
-    opacity: 0.7;
+  stroke: #ef4444;
+  stroke-width: 3;
+  opacity: 0.7;
 }
 
 /* Connection Status Indicator */
 #statusDot {
-    transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 #statusDot.active {
-    background-color: #10b981;
-    animation: pulse 2s infinite;
+  background-color: #10b981;
+  animation: pulse 2s infinite;
 }
 
 #statusDot.inactive {
-    background-color: #6b7280;
+  background-color: #6b7280;
 }
 
 /* Feedback Display Styles */
 #formScore {
-    transition: color 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 .form-excellent {
-    color: #10b981;
+  color: #10b981;
 }
 
 .form-good {
-    color: #84cc16;
+  color: #84cc16;
 }
 
 .form-fair {
-    color: #f59e0b;
+  color: #f59e0b;
 }
 
 .form-poor {
-    color: #ef4444;
+  color: #ef4444;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-    /* Stack layout on tablets */
-    .split-layout {
-        flex-direction: column;
-    }
-    
-    aside {
-        width: 100% !important;
-        height: 200px;
-        overflow-x: auto;
-        overflow-y: hidden;
-    }
-    
-    #exerciseCards {
-        display: flex;
-        gap: 1rem;
-        padding-bottom: 1rem;
-    }
-    
-    .exercise-card {
-        min-width: 250px;
-    }
+  /* Stack layout on tablets */
+  .split-layout {
+    flex-direction: column;
+  }
+
+  aside {
+    width: 100% !important;
+    height: 200px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  #exerciseCards {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .exercise-card {
+    min-width: 250px;
+  }
 }
 
+@media (min-width: 768px) {
+  .video-container {
+    overflow: hidden;
+  }
+}
 @media (max-width: 768px) {
-    /* Mobile optimizations */
-    header h1 {
-        font-size: 1.25rem;
-    }
-    
-    aside {
-        height: 150px;
-    }
-    
-    .exercise-card {
-        min-width: 200px;
-    }
-    
-    #outputCanvas {
-        max-height: 400px;
-    }
+  /* Mobile optimizations */
+  header h1 {
+    font-size: 1.25rem;
+  }
+
+  aside {
+    height: 150px;
+  }
+
+  .exercise-card {
+    min-width: 200px;
+  }
+
+  #outputCanvas {
+    max-height: 400px;
+  }
 }
 
 /* Performance Optimization */
 #inputVideo {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
