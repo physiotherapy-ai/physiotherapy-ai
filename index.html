@@ -34,7 +34,7 @@
 
     <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body class="bg-gray-50 h-screen overflow-hidden">
+  <body class="bg-gray-50 h-screen overflow-auto">
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
       <div class="flex flex-col md:flex-row justify-between">
@@ -92,7 +92,7 @@
     <div class="grid md:grid-cols-12 h-screen pb-12">
       <!-- Left Panel - Exercise Selection (30%) -->
       <aside
-        class="md:col-span-3 w-full bg-white border-r h-full border-gray-200 overflow-y-auto"
+        class="md:col-span-3 w-full bg-white border-r h-max border-gray-200"
       >
         <div class="p-4">
           <div class="mb-4">
@@ -140,8 +140,8 @@
       </aside>
 
       <!-- Right Panel - Camera Feed (70%) -->
-      <main class="md:col-span-9 flex-1 p-6 overflow-y-auto h-full">
-        <div class="max-w-full h-full flex flex-col overflow-y-auto">
+      <main class="md:col-span-9 flex-1 px-2 py-6 h-full">
+        <div class="max-w-full h-full flex flex-col">
           <!-- Camera Controls -->
           <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
             <div class="flex flex-col md:flex-row items-center justify-between">
@@ -184,7 +184,7 @@
               <!-- Canvas for displaying video with landmarks -->
               <canvas
                 id="outputCanvas"
-                class="w-full !h-[25vh] md:!h-full rounded-lg bg-black"
+                class="w-full !h-[50vh] md:!h-full rounded-lg bg-black"
               ></canvas>
 
               <!-- Loading indicator -->
@@ -203,11 +203,11 @@
               <!-- Exercise Overlay Instructions -->
               <div
                 id="exerciseOverlay"
-                class="absolute top-4 left-4 bg-black bg-opacity-75 text-white p-4 rounded-lg hidden max-w-sm"
+                class="absolute top-0 left-4 bg-black bg-opacity-75 text-white pt-4 rounded-lg hidden max-w-sm"
               >
                 <div id="exerciseAnimation" class="mb-3 hidden">
                   <div
-                    class="w-32 h-24 bg-white rounded flex items-center justify-center"
+                    class="w-32 h-24 bg-white rounded flex items-center justify-center w-[75%] h-full"
                   >
                     <img
                       id="animationImage"
@@ -248,7 +248,7 @@
           </div>
 
           <!-- Detection Info Panel -->
-          <div class="mt-4 pb-28 pt-24 md:pt-2 md:pb-14">
+          <div class="mt-4 pb-4 pt-24 md:pt-2 md:pb-14">
             <div class="bg-white rounded-lg shadow-sm p-4 mt-4">
               <div class="grid grid-cols-3 gap-4 text-sm">
                 <div>
