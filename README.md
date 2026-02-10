@@ -17,6 +17,20 @@
 
 ---
 
+## 🎥 Demo Video
+
+<div align="center">
+
+
+
+**Watch PhysiotherapyAI track exercises in real-time (2 minutes)**
+
+*Real-time pose detection, voice commands, and audio feedback demonstration*
+
+</div>
+
+---
+
 ## 🎯 Overview
 
 **PhysiotherapyAI** is an innovative web-based platform that combines **computer vision**, **pose estimation**, and **voice commands** to deliver real-time physiotherapy exercise guidance. Using **MediaPipe Pose** detection, it tracks 33 body landmarks to analyze movement patterns, correct form, and provide personalized feedback.
