@@ -1,180 +1,133 @@
-# Physiotherapy AI Motion Tracking MVP
+<div align="center">
 
-## 🎯 Project Overview
-An AI-powered physiotherapy motion tracking application that uses MediaPipe Pose detection to analyze body movements in real-time through webcam feed.
+# 🏥 PhysiotherapyAI - Motion Tracking System
 
-## 📌 Current Status: Step 2 Complete
-**Exercise Selection Panel + 30/70 Split Layout**
+### AI-Powered Physiotherapy Assistant with Real-Time Movement Analysis
 
-### ✅ Currently Implemented Features
-1. **Camera Integration**
-   - WebRTC camera access with permission handling
-   - Start/Stop camera controls
-   - Front-facing camera by default
-   - Real-time FPS counter
+[![MediaPipe](https://img.shields.io/badge/MediaPipe-Pose-00ACC1?logo=google)](https://mediapipe.dev/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![WebRTC](https://img.shields.io/badge/WebRTC-Enabled-333333?logo=webrtc)](https://webrtc.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-2. **MediaPipe Pose Detection**
-   - Real-time detection of 33 body landmarks
-   - Visual overlay showing detected pose skeleton
-   - Color-coded landmarks (Red: idle, Green: exercising)
-   - Visibility percentage calculation for tracking quality
+**Leveraging computer vision and AI to provide personalized physiotherapy guidance**
 
-3. **Exercise Selection Panel**
-   - Left panel (30% width) with exercise cards
-   - 8 pre-configured exercises with details
-   - Category filtering (Lower Body, Upper Body, Core, Mobility)
-   - Visual selection with highlighting
-   - Exercise information display (muscles, duration, difficulty)
+[Features](#-features) • [Demo](#-live-demo) • [Technology](#-technology-stack) • [Getting Started](#-getting-started) • [Architecture](#-architecture)
 
-4. **Exercise Training Animations (NEW)**
-   - Visual demonstration animations for proper form
-   - Integrated exercise preview in instruction overlay
-   - Clean vector-style animations for professional appearance
-   - Helps users learn correct movement patterns before starting
+![PhysiotherapyAI Demo](docs/images/demo-screenshot.png)
 
-5. **Voice Commands (NEW)**
-   - Voice-controlled camera operations: "start camera", "stop camera"
-   - Voice-controlled exercise operations: "start exercise", "stop exercise"
-   - Session controls: "start session", "end session"
-   - Real-time voice status indicator
-   - Cross-browser speech recognition support
-   - Visual feedback for recognized commands
-
-6. **Audio Feedback System**
-   - Text-to-speech integration for real-time guidance
-   - Customizable voice settings
-   - Audio toggle controls
-   - Rep count announcements
-
-7. **User Interface**
-   - Professional 30/70 split layout
-   - Responsive design with mobile optimization
-   - Connection status indicator
-   - Exercise overlay instructions
-   - Real-time feedback display area (ready for implementation)
-   - Clean medical-professional aesthetic
-
-### 🔗 Functional Entry Points
-- `index.html` - Main application page
-  - Start Camera button: Initiates webcam and pose detection
-  - Stop Camera button: Stops tracking and clears display
-  - Voice Commands button: Toggle voice control on/off
-  - Audio toggle: Enable/disable text-to-speech feedback
-  - Real-time landmark visualization on canvas
-
-#### Voice Commands Available:
-- **Camera Control**: "start camera", "stop camera", "camera on", "camera off"
-- **Exercise Control**: "start exercise", "stop exercise", "begin exercise", "end exercise"
-
-### 📋 Features Not Yet Implemented
-1. ~~Exercise selection panel (left side)~~ ✅ DONE
-2. Specific exercise implementations (Bodyweight Squats) - Basic structure ready
-3. Movement analysis and error detection
-4. Real-time feedback system (visual/audio)
-5. Progress tracking and rep counting
-6. Form accuracy scoring
-7. Session summaries
-8. ~~Exercise state management~~ ✅ Basic state management DONE
-
-### 🚀 Recommended Next Steps
-1. ~~**Step 2**: Add exercise selection panel with exercise cards~~ ✅ COMPLETE
-2. **Step 3**: Implement bodyweight squat exercise logic with angle calculations
-3. **Step 4**: Add movement analysis and phase detection (descent/ascent)
-4. **Step 5**: Implement error detection for form issues
-5. **Step 6**: Add real-time feedback (visual and audio cues)
-6. **Step 7**: Implement progress tracking and rep counting
-7. **Step 8**: Add session summaries and form scoring
-
-## 🏗️ Project Structure
-```
-/
-├── index.html                    # Main HTML page with split layout
-├── css/
-│   └── style.css                # Custom styles and responsive design
-├── js/
-│   ├── main.js                  # Main JavaScript with MediaPipe integration
-│   ├── exercises.js             # Exercise database and configurations
-│   ├── arm-raises-analyzer.js   # Exercise-specific analysis logic
-│   ├── audio-feedback.js        # Text-to-speech feedback system
-│   └── voice-commands.js        # Voice recognition and command processing
-└── README.md                    # Project documentation
-```
-
-## 🛠️ Technology Stack
-- **Frontend**: Vanilla JavaScript, HTML5, CSS3
-- **Styling**: Tailwind CSS (via CDN)
-- **AI/ML**: MediaPipe Pose (v0.5)
-- **Camera**: WebRTC API
-- **Dependencies**:
-  - @mediapipe/pose
-  - @mediapipe/camera_utils
-  - @mediapipe/control_utils
-  - @mediapipe/drawing_utils
-
-## 📊 Data Models
-Currently tracking:
-- 33 body landmarks with x, y, z coordinates
-- Visibility scores for each landmark
-- Real-time pose data structure from MediaPipe
-
-## 🎮 How to Use
-1. Open the application in a modern web browser
-2. **Select an exercise** from the left panel (8 exercises available)
-3. **Enable voice commands** (optional): Click the microphone button to activate voice control
-4. Click "**Start Camera**" button (or say "start camera") to activate webcam
-5. Allow camera and microphone permissions when prompted
-6. Stand back so your full body is visible
-7. Click "**Start Exercise**" (or say "start exercise") to begin tracking
-8. The system shows:
-   - Red landmarks when idle
-   - Green landmarks when exercising
-   - Real-time FPS and visibility scores
-   - Exercise instructions overlay
-   - Voice command feedback notifications
-
-### Voice Control Tips:
-- Speak clearly and wait for the green microphone indicator
-- Commands work in noisy environments with confidence thresholds
-- Use individual commands for precise control of camera and exercise functions
-
-### Available Exercises:
-- **Lower Body**: Bodyweight Squat, Standing March, Heel Raises, Seated Knee Extension
-- **Upper Body**: Arm Circles, Wall Push-ups
-- **Mobility**: Neck Rotation, Shoulder Rolls
-
-## 🔒 Browser Requirements
-- Modern browser with WebRTC support
-- Camera/webcam access
-- Microphone access (for voice commands)
-- JavaScript enabled
-- **Voice Commands**: Chrome, Edge, Safari (latest versions)
-- **Camera**: Chrome, Firefox, Edge, Safari (latest versions)
-
-## 📝 Development Notes
-- MediaPipe Pose model complexity set to 1 (balanced)
-- Detection confidence threshold: 0.5
-- Tracking confidence threshold: 0.5
-- Canvas aspect ratio: 4:3 (desktop), 1:1 (mobile)
-- Front-facing camera used by default
-
-## 🎯 Final Goal
-Build a complete physiotherapy AI assistant capable of:
-- Multiple exercise tracking
-- Real-time form correction
-- Progress monitoring
-- Personalized feedback
-- Session analytics
+</div>
 
 ---
 
-**Current Development Stage**: MVP Step 2 - Exercise Selection & Split Layout ✅
+## 🎯 Overview
 
-### What's New in Step 2:
-- ✅ 30/70 split layout implemented
-- ✅ Exercise selection panel with 8 exercises
-- ✅ Category filtering
-- ✅ Exercise state management
-- ✅ Visual feedback indicators
-- ✅ Professional UI improvements
+**PhysiotherapyAI** is an innovative web-based platform that combines **computer vision**, **pose estimation**, and **voice commands** to deliver real-time physiotherapy exercise guidance. Using **MediaPipe Pose** detection, it tracks 33 body landmarks to analyze movement patterns, correct form, and provide personalized feedback.
 
-Ready for Step 3: Implementing specific exercise logic and angle calculations!
+### 🌟 Why PhysiotherapyAI?
+
+- 🤖 **AI-Powered**: Real-time pose estimation using MediaPipe
+- 🎤 **Voice Control**: Hands-free operation with voice commands
+- 📊 **Real-Time Feedback**: Instant form correction and guidance
+- 📱 **Cross-Platform**: Works on desktop and mobile browsers
+- 🏥 **Medical-Grade UI**: Professional healthcare aesthetic
+- 🎯 **Exercise Library**: 8+ pre-configured physiotherapy exercises
+- 🔊 **Audio Guidance**: Text-to-speech feedback system
+- 📈 **Progress Tracking**: Rep counting and session analytics (coming soon)
+
+---
+
+## ✨ Features
+
+### 🎥 Computer Vision & Pose Detection
+
+- **MediaPipe Pose Integration**
+  - Real-time detection of 33 body landmarks
+  - Visibility percentage calculation for tracking quality
+  - 3D coordinate tracking (x, y, z)
+  - Confidence scoring for each landmark
+
+- **Visual Feedback**
+  - Color-coded landmarks (🔴 Red: idle, 🟢 Green: exercising)
+  - Skeleton overlay showing joint connections
+  - Real-time FPS counter
+  - Canvas aspect ratio optimization (4:3 desktop, 1:1 mobile)
+
+### 🎤 Voice Command System
+
+Control the application hands-free with natural language commands:
+
+| Command | Action |
+|---------|--------|
+| "Start Camera" | Activates webcam and pose detection |
+| "Stop Camera" | Stops tracking and clears display |
+| "Start Exercise" | Begins exercise tracking |
+| "Stop Exercise" | Ends current exercise session |
+
+**Features:**
+- Cross-browser speech recognition
+- Real-time voice status indicator
+- Visual feedback for recognized commands
+- Confidence threshold filtering
+- Works in noisy environments
+
+### 🏋️ Exercise Library
+
+#### **Lower Body Exercises**
+- 🦵 **Bodyweight Squat** - Full lower body strengthening
+- 🚶 **Standing March** - Balance and coordination
+- 👟 **Heel Raises** - Calf muscle strengthening
+- 🪑 **Seated Knee Extension** - Quadriceps isolation
+
+#### **Upper Body Exercises**
+- 🔄 **Arm Circles** - Shoulder mobility
+- 🧱 **Wall Push-ups** - Chest and arm strengthening
+
+#### **Mobility Exercises**
+- 🔄 **Neck Rotation** - Cervical mobility
+- 💪 **Shoulder Rolls** - Upper back flexibility
+
+Each exercise includes:
+- Detailed instructions
+- Target muscle groups
+- Difficulty level
+- Duration guidelines
+- Visual demonstration animations
+
+### 🔊 Audio Feedback System
+
+- **Text-to-Speech Integration**
+  - Real-time guidance during exercises
+  - Rep count announcements
+  - Form correction alerts
+  - Customizable voice settings
+
+- **Audio Controls**
+  - Toggle audio on/off
+  - Volume control
+  - Voice selection
+
+### 📱 User Interface
+
+- **30/70 Split Layout**
+  - Left panel (30%): Exercise selection and filtering
+  - Right panel (70%): Real-time camera feed and overlay
+  
+- **Exercise Selection Panel**
+  - 8 exercise cards with preview
+  - Category filtering (Lower Body, Upper Body, Core, Mobility)
+  - Visual selection highlighting
+  - Exercise details on hover
+
+- **Real-Time Display**
+  - Connection status indicator
+  - Exercise instruction overlay
+  - Feedback display area
+  - Professional medical aesthetic
+
+- **Responsive Design**
+  - Desktop optimization
+  - Mobile-friendly layout
+  - Touch-friendly controls
+
+---
