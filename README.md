@@ -38,7 +38,7 @@
 ### Computer Vision & Pose Detection
 
 - Real-time detection of 33 body landmarks with visibility scoring
-- Color-coded visual feedback (🔴 Red: idle, 🟢 Green: exercising)
+- Color-coded visual feedback (🔴 Red: Wrong, 🟢 Green: Correct)
 - Skeleton overlay showing joint connections
 - 3D coordinate tracking (x, y, z) for precise movement analysis
 - FPS counter for performance monitoring
