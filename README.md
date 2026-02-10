@@ -11,7 +11,7 @@
 
 **Leveraging computer vision and AI to provide personalized physiotherapy guidance**
 
-🌐 **[Live Demo →](https://theraphyai.com)**
+🌐 **[WebSite →](https://theraphyai.com)**
 
 </div>
 
