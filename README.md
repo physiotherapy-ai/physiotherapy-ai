@@ -14,7 +14,7 @@
 
 [Features](#-features) • [Demo](#-live-demo) • [Technology](#-technology-stack) • [Getting Started](#-getting-started) • [Architecture](#-architecture)
 
-![PhysiotherapyAI Demo](docs/images/demo-screenshot.png)
+![PhysiotherapyAI Demo](https://theraphyai.com)
 
 </div>
 
