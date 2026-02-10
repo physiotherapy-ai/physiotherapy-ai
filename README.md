@@ -12,9 +12,9 @@
 
 **Leveraging computer vision and AI to provide personalized physiotherapy guidance**
 
-[Features](#-features) • [Demo](#-live-demo) • [Technology](#-technology-stack) • [Getting Started](#-getting-started) • [Architecture](#-architecture)
+🌐 **[Live Demo →](https://theraphyai.com)**
 
-![PhysiotherapyAI Demo](https://theraphyai.com)
+[Features](#-features) • [Technology](#-technology-stack) • [Getting Started](#-getting-started) • [Architecture](#-architecture)
 
 </div>
 
