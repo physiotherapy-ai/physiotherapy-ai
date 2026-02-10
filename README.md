@@ -8,13 +8,10 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![WebRTC](https://img.shields.io/badge/WebRTC-Enabled-333333?logo=webrtc)](https://webrtc.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **Leveraging computer vision and AI to provide personalized physiotherapy guidance**
 
 🌐 **[Live Demo →](https://theraphyai.com)**
-
-[Features](#-features) • [Technology](#-technology-stack) • [Getting Started](#-getting-started) • [Architecture](#-architecture)
 
 </div>
 
@@ -24,110 +21,75 @@
 
 **PhysiotherapyAI** is an innovative web-based platform that combines **computer vision**, **pose estimation**, and **voice commands** to deliver real-time physiotherapy exercise guidance. Using **MediaPipe Pose** detection, it tracks 33 body landmarks to analyze movement patterns, correct form, and provide personalized feedback.
 
-### 🌟 Why PhysiotherapyAI?
+### Key Features
 
-- 🤖 **AI-Powered**: Real-time pose estimation using MediaPipe
-- 🎤 **Voice Control**: Hands-free operation with voice commands
-- 📊 **Real-Time Feedback**: Instant form correction and guidance
-- 📱 **Cross-Platform**: Works on desktop and mobile browsers
-- 🏥 **Medical-Grade UI**: Professional healthcare aesthetic
-- 🎯 **Exercise Library**: 8+ pre-configured physiotherapy exercises
-- 🔊 **Audio Guidance**: Text-to-speech feedback system
-- 📈 **Progress Tracking**: Rep counting and session analytics (coming soon)
+- 🤖 **AI-Powered Pose Detection**: Real-time tracking of 33 body landmarks using MediaPipe
+- 🎤 **Voice Control**: Hands-free operation with natural language commands
+- 📊 **Real-Time Feedback**: Instant form correction and visual guidance
+- 🔊 **Audio Guidance**: Text-to-speech feedback system for exercise coaching
+- 🏋️ **Exercise Library**: 8+ pre-configured physiotherapy exercises
+- 📱 **Responsive Design**: Works seamlessly on desktop and mobile browsers
+- 🎯 **Rep Counting**: Automatic repetition tracking and progress monitoring
 
 ---
 
 ## ✨ Features
 
-### 🎥 Computer Vision & Pose Detection
+### Computer Vision & Pose Detection
 
-- **MediaPipe Pose Integration**
-  - Real-time detection of 33 body landmarks
-  - Visibility percentage calculation for tracking quality
-  - 3D coordinate tracking (x, y, z)
-  - Confidence scoring for each landmark
+- Real-time detection of 33 body landmarks with visibility scoring
+- Color-coded visual feedback (🔴 Red: idle, 🟢 Green: exercising)
+- Skeleton overlay showing joint connections
+- 3D coordinate tracking (x, y, z) for precise movement analysis
+- FPS counter for performance monitoring
 
-- **Visual Feedback**
-  - Color-coded landmarks (🔴 Red: idle, 🟢 Green: exercising)
-  - Skeleton overlay showing joint connections
-  - Real-time FPS counter
-  - Canvas aspect ratio optimization (4:3 desktop, 1:1 mobile)
+### Voice Command System
 
-### 🎤 Voice Command System
+Control the application hands-free:
 
-Control the application hands-free with natural language commands:
+- **"Start Camera"** - Activates webcam and pose detection
+- **"Stop Camera"** - Stops tracking and clears display
+- **"Start Exercise"** - Begins exercise tracking
+- **"Stop Exercise"** - Ends current exercise session
 
-| Command | Action |
-|---------|--------|
-| "Start Camera" | Activates webcam and pose detection |
-| "Stop Camera" | Stops tracking and clears display |
-| "Start Exercise" | Begins exercise tracking |
-| "Stop Exercise" | Ends current exercise session |
+Features cross-browser speech recognition with real-time visual feedback and works in noisy environments.
 
-**Features:**
-- Cross-browser speech recognition
-- Real-time voice status indicator
-- Visual feedback for recognized commands
-- Confidence threshold filtering
-- Works in noisy environments
+### Exercise Library
 
-### 🏋️ Exercise Library
+**Lower Body:** Bodyweight Squat, Standing March, Heel Raises, Seated Knee Extension  
+**Upper Body:** Arm Circles, Wall Push-ups  
+**Mobility:** Neck Rotation, Shoulder Rolls
 
-#### **Lower Body Exercises**
-- 🦵 **Bodyweight Squat** - Full lower body strengthening
-- 🚶 **Standing March** - Balance and coordination
-- 👟 **Heel Raises** - Calf muscle strengthening
-- 🪑 **Seated Knee Extension** - Quadriceps isolation
+Each exercise includes detailed instructions, target muscle groups, difficulty level, duration guidelines, and visual demonstration animations.
 
-#### **Upper Body Exercises**
-- 🔄 **Arm Circles** - Shoulder mobility
-- 🧱 **Wall Push-ups** - Chest and arm strengthening
+### Audio Feedback
 
-#### **Mobility Exercises**
-- 🔄 **Neck Rotation** - Cervical mobility
-- 💪 **Shoulder Rolls** - Upper back flexibility
+- Text-to-speech integration for real-time guidance
+- Rep count announcements and form correction alerts
+- Customizable voice settings with volume control
+- Toggle audio on/off
 
-Each exercise includes:
-- Detailed instructions
-- Target muscle groups
-- Difficulty level
-- Duration guidelines
-- Visual demonstration animations
+### User Interface
 
-### 🔊 Audio Feedback System
-
-- **Text-to-Speech Integration**
-  - Real-time guidance during exercises
-  - Rep count announcements
-  - Form correction alerts
-  - Customizable voice settings
-
-- **Audio Controls**
-  - Toggle audio on/off
-  - Volume control
-  - Voice selection
-
-### 📱 User Interface
-
-- **30/70 Split Layout**
-  - Left panel (30%): Exercise selection and filtering
-  - Right panel (70%): Real-time camera feed and overlay
-  
-- **Exercise Selection Panel**
-  - 8 exercise cards with preview
-  - Category filtering (Lower Body, Upper Body, Core, Mobility)
-  - Visual selection highlighting
-  - Exercise details on hover
-
-- **Real-Time Display**
-  - Connection status indicator
-  - Exercise instruction overlay
-  - Feedback display area
-  - Professional medical aesthetic
-
-- **Responsive Design**
-  - Desktop optimization
-  - Mobile-friendly layout
-  - Touch-friendly controls
+- **30/70 Split Layout**: Exercise selection panel (30%) + camera feed (70%)
+- **Exercise Cards**: Category filtering, visual selection, hover details
+- **Real-Time Display**: Connection status, instruction overlay, feedback area
+- **Professional Design**: Medical-grade aesthetic with responsive mobile layout
 
 ---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Modern web browser (Chrome, Firefox, Edge, Safari latest versions)
+- Webcam access
+- Microphone access (for voice commands)
+- JavaScript enabled
+
+### Quick Start
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/physiotherapy-ai/physiotherapy-ai.git
+cd physiotherapy-ai
